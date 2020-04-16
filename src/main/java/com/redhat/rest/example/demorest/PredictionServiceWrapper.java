@@ -34,7 +34,7 @@ public class PredictionServiceWrapper {
 				restConfiguration()
 						.component("servlet")
 						.bindingMode(RestBindingMode.auto)
-						.producerComponent("http4").host("localhost:8090");
+						.producerComponent("http4").host("localhost:8080");
 
 
 				//start case from the online banking website
