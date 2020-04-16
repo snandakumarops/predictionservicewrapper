@@ -53,10 +53,10 @@ public class PredictionServiceWrapper {
 			public void configure() throws Exception {
 
 //
-//				restConfiguration()
-//						.component("servlet")
-//						.bindingMode(RestBindingMode.auto)
-//						.producerComponent("http4").host("localhost:8080");
+				restConfiguration()
+						.component("servlet")
+						.bindingMode(RestBindingMode.auto)
+						.producerComponent("http4").host("localhost:8080");
 //
 //
 //				final SSLContext sslContext = SSLContexts.custom()
