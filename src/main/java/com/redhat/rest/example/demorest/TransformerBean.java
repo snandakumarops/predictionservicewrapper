@@ -1,152 +1,74 @@
 package com.redhat.rest.example.demorest;
 
+import jdk.nashorn.internal.parser.JSONParser;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @PropertySource("classpath:categorization.properties")
 public class TransformerBean {
 
-    @Autowired
-    private Categorization categorization;
-
-    @Autowired
-    private CustomerDetails customerDetails;
 
 
-    private static final String CASE_USER_ASSIGNMENT="\"case-user-assignments\" : { \"admin\" : \"pamAdmin\" }}";
-
-    public String transformOnlineResponse(String reqJson) {
-
-        String complaintsDescription = StringUtils.substringBetween(reqJson,"complaintsDescription\":\"","\"}");
-
-        Map<String,String> categoryMap = calculateCategoryBusinessUnit(complaintsDescription);
-        String rawJson = StringUtils.chop(reqJson);
-        StringBuilder returnString = new StringBuilder();
-        for(String key:categoryMap.keySet()) {
-            returnString.append("{\"case-data\" :  " )
-                        .append(rawJson)
-                        .append(",\"category\":\"")
-                        .append(key).append("\",\"businessUnit\":\"")
-                        .append(categoryMap.get(key))
-                        .append("\"} ,")
-                        .append(CASE_USER_ASSIGNMENT);
-
-        }
-        return returnString.toString();
-    }
-
-    public Map<String,String> calculateCategoryBusinessUnit(String complaintsDescription) {
-
-        String category = "Other";
-        String businessUnit = "OtherBU";
-
-
-        Map<String,String> properties = categorization.getMapProperty();
-
-        for(String key:properties.keySet()) {
-            List<String> list = Arrays.asList(properties.get(key).split(","));
-            boolean match = list.stream().anyMatch(s -> complaintsDescription.contains(s));
-
-            if(match) {
-                category = key;
-                businessUnit = key + "BU";
-            }
+    public String transformResponse(String income, String eventType, String lastOfferResponse) {
+        String eventNoType = "";
+        switch (eventType) {
+            case "AIRLINES" :
+                eventNoType = "1"; break;
+            case "MERCHANDISE" :
+                eventNoType = "2"; break;
+            case "HOTEL" :
+                eventNoType = "3"; break;
+            case "ONLINE PURCHASE" :
+                eventNoType = "4"; break;
+            case "UTILITIES" :
+                eventNoType = "5"; break;
+            case "RESTAURANTS" :
+                eventNoType = "6";break;
+            case "OTHERS":
+                eventNoType="7"; break;
         }
 
-        Map<String,String> categoryBusinessUnit = new HashMap<>();
-        categoryBusinessUnit.put(category,businessUnit);
+        System.out.println(income+" "+eventType+" "+lastOfferResponse);
 
-        return categoryBusinessUnit;
+        String requestString = "{\"data\":{\"ndarray\":[["+income+", "+lastOfferResponse+", "+eventNoType+"]]}}";
 
+        System.out.println(requestString);
+
+
+        return requestString;
 
     }
 
-    public String transformBranchBanking(String reqJson) {
-        String businessUnit = StringUtils.substringBetween(reqJson,"category\":\"","\",")+"BU";
-        String rawJson = StringUtils.chop(reqJson);
-        rawJson= rawJson + ",\""+lookUpUserDetails(StringUtils.substringBetween(reqJson,"customerAccNo\":\"","\","));
-        StringBuilder returnString = new StringBuilder();
-
-        returnString.append("{\"case-data\" :  ")
-                    .append(rawJson)
-                    .append(",\"businessUnit\":\"")
-                    .append(businessUnit)
-                    .append("\"} ,")
-                    .append(CASE_USER_ASSIGNMENT);
+    public String returnSegment(String json) {
+        JSONObject obj = new JSONObject(json);
+        JSONArray valMap = obj.getJSONObject("data").getJSONArray("ndarray");
 
 
-        return returnString.toString();
-    }
 
-    public String lookUpUserDetails(String customerNumber) {
-        //Doing a dummy read from the properties file, this can be plugged to be a DB call.
-        StringBuilder returnString = new StringBuilder();
-        //logic to pull customer details based on customer Number
-        if(customerDetails.getCustomerNo().equals(customerNumber)) {
-           String[] customerDet= customerDetails.getCustDetails().split(",");
-           returnString.append("customerName\":\"")
-                       .append(customerDet[0])
-                       .append("\",\"customerPhone\":\""+customerDet[1])
-                       .append("\",\"customerAddress\":\""+customerDet[2]+"\"");
-        } else {
-            returnString.append("customerName\":\"")
-                    .append("Default_Name")
-                    .append("\",\"customerPhone\":\""+"000-00-0000")
-                    .append("\",\"customerAddress\":\""+"Default_address"+"\"");
+        List<Double> valList = new ArrayList<>();
+        valList.add((Double)valMap.getJSONArray(0).get(0));
+        valList.add((Double)valMap.getJSONArray(0).get(1));
+        valList.add((Double)valMap.getJSONArray(0).get(2));
+
+        System.out.println(valList);
+        Double maxVal = Collections.max(valList);
+        Integer maxIdx = valList.indexOf(maxVal);
+
+        if(maxIdx == 0){
+            return "LOW";
+        } else if(maxIdx == 1) {
+            return "MEDIUM";
+        } else if(maxIdx == 2) {
+            return "HIGH";
         }
 
-        return returnString.toString();
-
+        return null;
     }
-
-    public String transformExcelResponse(String reqJson) {
-
-        String rawJson = StringUtils.chop(reqJson);
-        StringBuilder returnString = new StringBuilder();
-        returnString.append("{\"case-data\" :  {")
-                    .append("\"customerName\":\"" + StringUtils.substringBetween(rawJson, "customerName='", "'"))
-                    .append("\",\"customerPhone\":\"" + StringUtils.substringBetween(rawJson, "customerPhone='", "'"))
-                    .append("\",\"customerAddress\":\"" + StringUtils.substringBetween(rawJson, "customerAddress='", "'"))
-                    .append("\",\"complaintsDescription\":\"" + StringUtils.substringBetween(rawJson, "complaintsDescription='", "'"))
-                    .append("\",\"category\":\"" + StringUtils.substringBetween(rawJson, "category='", "'"))
-                    .append("\",\"businessUnit\":\"" + StringUtils.substringBetween(rawJson, "businessUnit='", "'") + "\"" + " },")
-                    .append(CASE_USER_ASSIGNMENT);
-
-
-        return returnString.toString();
-
-    }
-
-    public String transformSOAPResponse(String reqJson) {
-
-        String rawJson = StringUtils.chop(reqJson);
-        StringBuilder returnString = new StringBuilder();
-        Map<String,String> categoryMap = calculateCategoryBusinessUnit(StringUtils.substringBetween(rawJson, "<complaintsDescription>", "</complaintsDescription>"));
-        for(String key:categoryMap.keySet()) {
-            returnString.append("{\"case-data\" :  {")
-                .append("\"customerName\":\"" + StringUtils.substringBetween(rawJson, "<customerName>", "</customerName>"))
-                .append("\",\"customerPhone\":\"" + StringUtils.substringBetween(rawJson, "<customerPhone>", "</customerPhone>"))
-                .append("\",\"customerAddress\":\"" + StringUtils.substringBetween(rawJson, "<customerAddress>", "</customerAddress>"))
-                .append("\",\"complaintsDescription\":\"" +StringUtils.substringBetween(rawJson,"<complaintsDescription>","</complaintsDescription"))
-                .append("\",\"category\":\"" + key)
-                .append("\",\"businessUnit\":\"" + categoryMap.get(key) + "\"" + " },")
-                .append(CASE_USER_ASSIGNMENT);
-
-        }
-        System.out.println("Route 5"+returnString);
-        return returnString.toString();
-
-    }
-
-
-
-
 
 
 
