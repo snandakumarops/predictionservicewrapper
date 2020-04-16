@@ -35,6 +35,10 @@ public class TransformerBean {
 
         System.out.println(income+" "+eventType+" "+lastOfferResponse);
 
+        if(lastOfferResponse == null) {
+            lastOfferResponse = "0";
+        }
+
         String requestString = "{\"data\":{\"ndarray\":[["+income+", "+lastOfferResponse+", "+eventNoType+"]]}}";
 
         System.out.println(requestString);
