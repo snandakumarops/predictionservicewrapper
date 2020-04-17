@@ -52,6 +52,7 @@ public class TransformerBean {
 
         String body = exchange.getIn().getBody(String.class);
 
+        System.out.println(body);
 
         Map mapVal = new Gson().fromJson(body,LinkedHashMap.class);
         System.out.println(mapVal.keySet());
