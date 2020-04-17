@@ -68,7 +68,7 @@ public class TransformerBean {
                 customer.setCustId((String) exchange.getProperties().get("custId"));
                 customer.setCustomerClass((String) customerMap.get("customerClass"));
                 customer.setQualifiedPurchases((String) customerMap.get("txnType"));
-                customer.setAge((String) customerMap.get("age"));
+                customer.setAge(String.valueOf((Double) customerMap.get("age")));
                 if(null == customerMap.get("lastOfferAcceptance")) {
                     customer.setLastOfferResponse("0");
                 }else {
