@@ -45,6 +45,7 @@ public class PredictionServiceWrapper {
 						.setProperty("eventType",simple("${header.eventType}"))
 						.setHeader(Exchange.HTTP_METHOD, constant("GET"))
 						.removeHeader("*")
+						.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
 						.to("http4://portfolio-customer-event-context.apps.cluster-flrda-91e7.flrda-91e7.example.opentlc.com/odata/portfolio/customerOfferContext?bridgeEndpoint=true")
 						.bean(TransformerBean.class,"lookUpCustId")
 						.removeHeader("*")
