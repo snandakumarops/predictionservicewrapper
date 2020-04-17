@@ -8,6 +8,15 @@ public class Customer {
     private String qualifiedPurchases;
     private String lastOfferResponse;
     private String income;
+    private String age;
+
+    public String getAge() {
+        return age;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
+    }
 
     public String getIncome() {
         return income;
