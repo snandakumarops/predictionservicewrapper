@@ -2,7 +2,9 @@ package com.redhat.rest.example.demorest;
 
 
 import org.apache.camel.Exchange;
+import org.apache.camel.Expression;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.builder.xml.XPathBuilder;
 import org.apache.camel.component.http4.HttpComponent;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.util.jsse.KeyStoreParameters;
@@ -52,49 +54,28 @@ public class PredictionServiceWrapper {
 			@Override
 			public void configure() throws Exception {
 
-//
+
 				restConfiguration()
 						.component("servlet")
 						.bindingMode(RestBindingMode.auto)
 						.producerComponent("http4").host("localhost:8080");
-//
-//
-//				final SSLContext sslContext = SSLContexts.custom()
-//						.loadTrustMaterial(null,
-//								TrustAllStrategy.INSTANCE)
-//						.build();
-//
-//				KeyStoreParameters ksp = new KeyStoreParameters();
-//				ksp.setResource("\\Projects\\example\\exampleCa.jks");
-//				ksp.setPassword("password");
-//				TrustManagersParameters tmp = new TrustManagersParameters();
-//				tmp.setKeyStore(ksp);
-//				SSLContextParameters scp = new SSLContextParameters();
-//				scp.setTrustManagers(tmp);
-//
-//
-//				rest("/customer-context")
-//						.get()
-//						.route()
-//						.setHeader(Exchange.HTTP_METHOD, constant("GET"))
-//						.to("https4://portfolio-customer-event-context.apps.cluster-flrda-91e7.flrda-91e7.example.opentlc.com/odata/portfolio/customerOfferContext?bridgeEndpoint=true&sslContextParameters="+scp+"&amp;throwExceptionOnFailure=false")
-//						.log("${body}");
 
 
 
-				//start case from the online banking website
-				rest("/predict")
+				rest("/customer-context")
 						.get()
-						.enableCORS(true)
 						.route()
-						.bean(TransformerBean.class,"transformResponse(${header.income},${header.eventType},${header.lastOfferResponse})")
+						.setProperty("custId",simple("${header.custId}"))
+						.setProperty("eventType",simple("${header.eventType}"))
+						.setHeader(Exchange.HTTP_METHOD, constant("GET"))
+						.removeHeader("*")
+						.to("http4://portfolio-customer-event-context.apps.cluster-flrda-91e7.flrda-91e7.example.opentlc.com/odata/portfolio/customerOfferContext?bridgeEndpoint=true")
+						.bean(TransformerBean.class,"lookUpCustId")
 						.removeHeader("*")
 						.setHeader(Exchange.HTTP_METHOD, constant("POST"))
 						.to("http4://ceh-seldon-models-customer-event-context.apps.cluster-flrda-91e7.flrda-91e7.example.opentlc.com/predict?bridgeEndpoint=true")
-						.bean(TransformerBean.class,"returnSegment");
-
-
-
+						.bean(TransformerBean.class,"returnSegment")
+						;
 		}
 		};
 
