@@ -50,6 +50,7 @@ public class TransformerBean {
 
     public String lookUpCustId(Exchange exchange) {
 
+
         String body = exchange.getIn().getBody(String.class);
 
         System.out.println(body);

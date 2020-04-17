@@ -49,8 +49,9 @@ public class PredictionServiceWrapper {
 						.to("http4://portfolio-customer-event-context.apps.cluster-flrda-91e7.flrda-91e7.example.opentlc.com/odata/portfolio/customerOfferContext?bridgeEndpoint=true")
 						.bean(TransformerBean.class,"lookUpCustId")
 						.removeHeader("*")
+						.log("${body}")
 						.setHeader(Exchange.HTTP_METHOD, constant("POST"))
-						.to("http4://ceh-seldon-models-customer-event-context.apps.cluster-flrda-91e7.flrda-91e7.example.opentlc.com/predict?bridgeEndpoint=true")
+						.to("http4://ceh-seldon-models-customer-event-context.apps.cluster-flrda-91e7.flrda-91e7.example.opentlc.com/predict")
 						.bean(TransformerBean.class,"returnSegment")
 						;
 		}
