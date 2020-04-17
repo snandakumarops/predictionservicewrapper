@@ -17,41 +17,7 @@ public class TransformerBean {
 
 
 
-    public String transformResponse(Exchange exchange) {
-        String eventNoType = "";
-        switch ((String)exchange.getProperties().get("eventType")) {
-            case "AIRLINES" :
-                eventNoType = "1"; break;
-            case "MERCHANDISE" :
-                eventNoType = "2"; break;
-            case "HOTEL" :
-                eventNoType = "3"; break;
-            case "ONLINE PURCHASE" :
-                eventNoType = "4"; break;
-            case "UTILITIES" :
-                eventNoType = "5"; break;
-            case "RESTAURANTS" :
-                eventNoType = "6";break;
-            case "OTHERS":
-                eventNoType="7"; break;
-        }
-
-        System.out.println(exchange.getIn().getBody(String.class));
-
-//        if(lastOfferResponse == null) {
-//            lastOfferResponse = "0";
-//        }
-//
-//        String requestString = "{\"data\":{\"ndarray\":[["+income+", "+lastOfferResponse+", "+eventNoType+"]]}}";
-//
-//        System.out.println(requestString);
-
-
-        return  null;
-
-    }
-
-    public Customer returnSegment(Exchange exchange) {
+    public String returnSegment(Exchange exchange) {
         System.out.println(exchange.getIn().getBody());
         JSONObject obj = new JSONObject(exchange.getIn().getBody(String.class));
         JSONArray valMap = obj.getJSONObject("data").getJSONArray("ndarray");
@@ -79,14 +45,14 @@ public class TransformerBean {
         Customer customer = (Customer)exchange.getProperty("customer");
         customer.setPrediction(segment);
 
-        return customer;
+        return new Gson().toJson(customer);
     }
 
     public String lookUpCustId(Exchange exchange) {
 
         String body = exchange.getIn().getBody(String.class);
 
-//        Map mapVal = new Gson().parseMap(body);
+
         Map mapVal = new Gson().fromJson(body,LinkedHashMap.class);
         System.out.println(mapVal.keySet());
 
