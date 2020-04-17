@@ -89,7 +89,7 @@ public class TransformerBean {
                 eventNoType = "2"; break;
             case "HOTEL" :
                 eventNoType = "3"; break;
-            case "ONLINE PURCHASE" :
+            case "ONLINE_PURCHASE" :
                 eventNoType = "4"; break;
             case "UTILITIES" :
                 eventNoType = "5"; break;
