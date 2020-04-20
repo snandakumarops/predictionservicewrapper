@@ -36,6 +36,8 @@ public class PredictionServiceWrapper {
 						.bindingMode(RestBindingMode.auto)
 						.producerComponent("http4").host("localhost:8080");
 
+				String predictionUrl = System.getenv("prediction.service.url");
+				String odataUrl = System.getenv("odata.service.url");
 
 
 				rest("/customer-context")
@@ -46,12 +48,12 @@ public class PredictionServiceWrapper {
 						.setHeader(Exchange.HTTP_METHOD, constant("GET"))
 						.removeHeader("*")
 						.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-						.to("http4://portfolio-customer-event-context.apps.cluster-flrda-91e7.flrda-91e7.example.opentlc.com/odata/portfolio/customerOfferContext?bridgeEndpoint=true")
+						.to(odataUrl+"?bridgeEndpoint=true")
 						.bean(TransformerBean.class,"lookUpCustId")
 						.removeHeader("*")
 						.log("${body}")
 						.setHeader(Exchange.HTTP_METHOD, constant("POST"))
-						.to("http4://ceh-ceph-seldon-model-odh-context.apps.cluster-flrda-91e7.flrda-91e7.example.opentlc.com/predict?bridgeEndpoint=true")
+						.to(predictionUrl+"?bridgeEndpoint=true")
 						.bean(TransformerBean.class,"returnSegment")
 						;
 		}
