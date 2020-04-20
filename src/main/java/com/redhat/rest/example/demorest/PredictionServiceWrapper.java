@@ -35,8 +35,13 @@ public class PredictionServiceWrapper {
 
 
 
+
+
 			@Override
 			public void configure() throws Exception {
+				System.out.println("prediction service"+predictionUrl);
+				System.out.println("odata url"+dataServiceUrl);
+
 
 
 				restConfiguration()
