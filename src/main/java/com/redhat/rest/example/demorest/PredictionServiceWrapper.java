@@ -49,8 +49,9 @@ public class PredictionServiceWrapper {
 						.bindingMode(RestBindingMode.auto)
 						.producerComponent("http4").host("localhost:8080");
 
-				String predictionUrl = System.getProperty("prediction.service.url");
-				String odataUrl = System.getProperty("odata.service.url");
+
+
+
 
 
 				rest("/customer-context")
