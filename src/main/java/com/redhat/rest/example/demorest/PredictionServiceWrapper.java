@@ -4,6 +4,7 @@ package com.redhat.rest.example.demorest;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.rest.RestBindingMode;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication
 @RestController
 public class PredictionServiceWrapper {
+
+	@Value("${prediction.service.url}")
+	private String predictionUrl;
+
+	@Value("${odata.service.url}")
+	private String dataServiceUrl;
+
 
 	public static void main(String[] args) {
 
@@ -48,7 +56,7 @@ public class PredictionServiceWrapper {
 						.setHeader(Exchange.HTTP_METHOD, constant("GET"))
 						.removeHeader("*")
 						.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-						.to(odataUrl+"?bridgeEndpoint=true")
+						.to(dataServiceUrl+"?bridgeEndpoint=true")
 						.bean(TransformerBean.class,"lookUpCustId")
 						.removeHeader("*")
 						.log("${body}")
